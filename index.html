@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salary Tracker</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <style>
+      /* General */
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(to bottom, #e0f7fa, #f0f4f8);
+        color: #333;
+      }
+      h2 {
+        text-align: center;
+        color: #3b82f6;
+        margin-bottom: 25px;
+      }
+      h3 {
+        margin-top: 15px;
+        color: #2563eb;
+      }
+      h4 {
+        margin: 5px 0;
+      }
+
+      /* Section card */
+      .section {
+        background: white;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 25px;
+        transition: transform 0.2s;
+      }
+      .section:hover {
+        transform: translateY(-3px);
+      }
+
+      /* Checkbox list */
+      label {
+        display: flex;
+        align-items: center;
+        margin: 8px 0;
+        padding: 10px;
+        border-radius: 10px;
+        transition: background 0.3s, color 0.3s;
+        cursor: pointer;
+      }
+      label:hover {
+        background: #f0f8ff;
+      }
+
+      input[type="checkbox"] {
+        transform: scale(1.5);
+        margin-right: 12px;
+        accent-color: #3b82f6;
+      }
+
+      /* Checked items */
+      .checked {
+        color: #16a34a;
+        font-weight: bold;
+        background: #e6ffed;
+      }
+
+      /* Icons */
+      .icon {
+        margin-right: 8px;
+        color: #f97316;
+      }
+
+      /* Summary box */
+      .summary {
+        background: #fef3c7;
+        padding: 10px 15px;
+        border-radius: 12px;
+        margin-top: 10px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      /* Responsive */
+      @media (max-width: 480px) {
+        body {
+          padding: 10px;
+        }
+        h2 {
+          font-size: 20px;
+        }
+        h3 {
+          font-size: 18px;
+        }
+        label {
+          font-size: 16px;
+          padding: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h2><i class="fas fa-wallet"></i> Two-Part Salary Tracker</h2>
+
+    <!-- First Half Salary -->
+    <div class="section">
+      <h3><i class="fas fa-coins icon"></i> First Half ($160)</h3>
+      <label
+        ><input type="checkbox" value="55" id="first0" /><i
+          class="fas fa-utensils icon"
+        ></i>
+        Foods Spend (Half) $55</label
+      >
+      <label
+        ><input type="checkbox" value="15" id="first1" /><i
+          class="fas fa-motorcycle icon"
+        ></i>
+        Motorbike Spend $15</label
+      >
+      <label
+        ><input type="checkbox" value="60" id="first2" /><i
+          class="fas fa-list icon"
+        ></i>
+        Spend Need $60</label
+      >
+      <label
+        ><input type="checkbox" value="15" id="first3" /><i
+          class="fas fa-gift icon"
+        ></i>
+        Other $15</label
+      >
+      <label
+        ><input type="checkbox" value="15" id="first4" /><i
+          class="fas fa-piggy-bank icon"
+        ></i>
+        Back Up $15</label
+      >
+      <div class="summary">
+        Total Checked: $<span id="totalFirst">0</span> | Remaining: $<span
+          id="balanceFirst"
+          >160</span
+        >
+      </div>
+    </div>
+
+    <!-- Second Half Salary -->
+    <div class="section">
+      <h3><i class="fas fa-coins icon"></i> Second Half ($160)</h3>
+      <label
+        ><input type="checkbox" value="15" id="second0" /><i
+          class="fas fa-oil-can icon"
+        ></i>
+        Motor Oil Change $15</label
+      >
+      <label
+        ><input type="checkbox" value="55" id="second1" /><i
+          class="fas fa-utensils icon"
+        ></i>
+        Foods Spend (Half) $55</label
+      >
+      <label
+        ><input type="checkbox" value="60" id="second2" /><i
+          class="fas fa-house icon"
+        ></i>
+        House Spend $60</label
+      >
+      <label
+        ><input type="checkbox" value="5" id="second3" /><i
+          class="fas fa-bolt icon"
+        ></i>
+        Electric Used $5</label
+      >
+      <label
+        ><input type="checkbox" value="15" id="second4" /><i
+          class="fas fa-gift icon"
+        ></i>
+        Other $15</label
+      >
+      <label
+        ><input type="checkbox" value="10" id="second5" /><i
+          class="fas fa-piggy-bank icon"
+        ></i>
+        Back Up $10</label
+      >
+      <div class="summary">
+        Total Checked: $<span id="totalSecond">0</span> | Remaining: $<span
+          id="balanceSecond"
+          >160</span
+        >
+      </div>
+    </div>
+
+    <!-- Grand Total -->
+    <div class="section">
+      <h3><i class="fas fa-chart-line icon"></i> Grand Summary</h3>
+      <div class="summary">
+        Total Spent: $<span id="grandTotal">0</span> | Total Remaining: $<span
+          id="grandRemaining"
+          >320</span
+        >
+      </div>
+    </div>
+
+    <script>
+      const halves = {
+        first: {
+          salary: 160,
+          totalId: "totalFirst",
+          balanceId: "balanceFirst",
+          count: 4,
+        },
+        second: {
+          salary: 160,
+          totalId: "totalSecond",
+          balanceId: "balanceSecond",
+          count: 5,
+        },
+      };
+
+      // Safe element getter
+      function getElem(id) {
+        return document.getElementById(id);
+      }
+
+      // Calculate totals
+      function calculateTotal(half) {
+        const { salary, totalId, balanceId, count } = halves[half];
+        let total = 0;
+
+        for (let i = 0; i <= count; i++) {
+          const cb = getElem(`${half}${i}`);
+          if (!cb) continue;
+          if (cb.checked) total += Number(cb.value);
+          cb.parentElement.className = cb.checked ? "checked" : "";
+          localStorage.setItem(`${half}${i}`, cb.checked);
+        }
+
+        getElem(totalId).innerText = total.toFixed(2);
+        getElem(balanceId).innerText = (salary - total).toFixed(2);
+        calculateGrand();
+      }
+
+      // Calculate grand total
+      function calculateGrand() {
+        const totalFirst = Number(getElem("totalFirst").innerText) || 0;
+        const totalSecond = Number(getElem("totalSecond").innerText) || 0;
+        const grandTotal = totalFirst + totalSecond;
+        const grandRemaining = 320 - grandTotal;
+
+        getElem("grandTotal").innerText = grandTotal.toFixed(2);
+        getElem("grandRemaining").innerText = grandRemaining.toFixed(2);
+      }
+
+      // Load saved state
+      globalThis.addEventListener("DOMContentLoaded", () => {
+        for (const half in halves) {
+          for (let i = 0; i <= halves[half].count; i++) {
+            const cb = getElem(`${half}${i}`);
+            if (!cb) continue;
+            cb.checked = localStorage.getItem(`${half}${i}`) === "true";
+            cb.addEventListener("change", () => calculateTotal(half));
+          }
+          calculateTotal(half);
+        }
+      });
+    </script>
+  </body>
+</html>
