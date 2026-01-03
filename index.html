@@ -1,278 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Salary Tracker">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Tracker</title>
 
-    <title>Salary Tracker</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
-    <style>
-      /* General */
-      body {
-        font-family: "Arial", sans-serif;
-        margin: 0;
-        padding: 20px;
-        background: linear-gradient(to bottom, #e0f7fa, #f0f4f8);
-        color: #333;
-      }
-      h2 {
-        text-align: center;
-        color: #3b82f6;
-        margin-bottom: 25px;
-      }
-      h3 {
-        margin-top: 15px;
-        color: #2563eb;
-      }
-      h4 {
-        margin: 5px 0;
-      }
+<!-- Bootstrap & Font -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-      /* Section card */
-      .section {
-        background: white;
-        padding: 15px;
-        border-radius: 15px;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        margin-bottom: 25px;
-        transition: transform 0.2s;
-      }
-      .section:hover {
-        transform: translateY(-3px);
-      }
+<style>
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to bottom, #e0f7fa, #f0f4f8);
+    padding: 20px;
+}
+h1 {
+    text-align: center; 
+    color: #0d6efd; 
+    margin-bottom: 30px;
+}
 
-      /* Checkbox list */
-      label {
-        display: flex;
-        align-items: center;
-        margin: 8px 0;
-        padding: 10px;
-        border-radius: 10px;
-        transition: background 0.3s, color 0.3s;
-        cursor: pointer;
-      }
-      label:hover {
-        background: #f0f8ff;
-      }
+/* Card & container */
+.card-header { font-weight: 600; }
+.card { border-radius: 15px; }
+.card-body { padding: 1rem; }
 
-      input[type="checkbox"] {
-        transform: scale(1.5);
-        margin-right: 12px;
-        accent-color: #3b82f6;
-      }
+/* Checkbox styling */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px;
+    margin-left: 14px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    transition: all 0.3s;
+    flex-wrap: wrap;
+    background: #f8f9fa;
+}
+.form-check-input { flex: 0 0 auto; margin-top: 0; }
+.form-check-label { flex: 1 1 auto; margin: 0; word-break: break-word; }
+.form-check:hover { background: #d0ebff; transform: translateX(2px); }
+.checked { background: #d1e7dd !important; font-weight: 600; }
 
-      /* Checked items */
-      .checked {
-        color: #16a34a;
-        font-weight: bold;
-        background: #e6ffed;
-      }
+/* Progress bars */
+.progress { height: 20px; margin-top: 5px; border-radius: 10px; }
 
-      /* Icons */
-      .icon {
-        margin-right: 8px;
-        color: #f97316;
-      }
+/* Reset button */
+#resetBtn { margin: 20px auto; display: block; }
 
-      /* Summary box */
-      .summary {
-        background: #fef3c7;
-        padding: 10px 15px;
-        border-radius: 12px;
-        margin-top: 10px;
-        font-weight: bold;
-        text-align: center;
-      }
+/* Responsive */
+@media (max-width: 480px){
+    body { padding: 10px; }
+    h1 { font-size: 20px; }
+    .form-check { gap: 8px; padding: 8px; }
+}
+</style>
+</head>
+<body>
 
-      /* Responsive */
-      @media (max-width: 480px) {
-        body {
-          padding: 10px;
-        }
-        h2 {
-          font-size: 20px;
-        }
-        h3 {
-          font-size: 18px;
-        }
-        label {
-          font-size: 16px;
-          padding: 8px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <h2><i class="fas fa-wallet"></i>Spending Track</h2>
+<h1><i class="fas fa-wallet"></i> Salary Tracker</h1>
 
-    <!-- First Half Salary -->
-    <div class="section">
-      <h3><i class="fas fa-coins icon"></i> First Half ($160)</h3>
-      <label
-        ><input type="checkbox" value="55" id="first0" /><i
-          class="fas fa-utensils icon"
-        ></i>
-        Foods Spend (Half) $60</label
-      >
-      <label
-        ><input type="checkbox" value="15" id="first1" /><i
-          class="fas fa-motorcycle icon"
-        ></i>
-        Motorbike Gas $15</label
-      >
-      <label
-        ><input type="checkbox" value="60" id="first2" /><i
-          class="fas fa-list icon"
-        ></i>
-        Saving $60</label
-      >
-      <label
-        ><input type="checkbox" value="15" id="first3" /><i
-          class="fas fa-gift icon"
-        ></i>
-        Other $10</label
-      >
-      <label
-        ><input type="checkbox" value="15" id="first4" /><i
-          class="fas fa-piggy-bank icon"
-        ></i>
-        Back Up $15</label
-      >
-      <div class="summary">
-        Total Checked: $<span id="totalFirst">0</span> </br> 
-        Remaining: $<span id="balanceFirst">160</span>
-      </div>
+<div class="container">
+
+  <!-- First Half -->
+  <div class="card mb-3 shadow-sm">
+    <div class="card-header bg-primary text-white"><i class="fas fa-coins"></i> First Half ($160)</div>
+    <div class="card-body" id="firstItems">
+      <!-- Items will be injected here by JS -->
     </div>
+    <div class="mt-2 px-3">Total: $<span id="totalFirst">0</span> | Left: $<span id="balanceFirst">160</span></div>
+    <div class="progress px-3"><div class="progress-bar bg-success" role="progressbar" style="width:0%" id="progressFirst"></div></div>
+  </div>
 
-    <!-- Second Half Salary -->
-    <div class="section">
-      <h3><i class="fas fa-coins icon"></i> Second Half ($160)</h3>
-      <label
-        ><input type="checkbox" value="15" id="second0" /><i
-          class="fas fa-oil-can icon"
-        ></i>
-        Motor Oil Change $15</label
-      >
-      <label
-        ><input type="checkbox" value="55" id="second1" /><i
-          class="fas fa-utensils icon"
-        ></i>
-        Foods Spend (Half) $60</label
-      >
-      <label
-        ><input type="checkbox" value="60" id="second2" /><i
-          class="fas fa-house icon"
-        ></i>
-        House Spend $60</label
-      >
-      <label
-        ><input type="checkbox" value="5" id="second3" /><i
-          class="fas fa-bolt icon"
-        ></i>
-        Electric Used $5</label
-      >
-      <label
-        ><input type="checkbox" value="15" id="second4" /><i
-          class="fas fa-gift icon"
-        ></i>
-        Other $10</label
-      >
-      <label
-        ><input type="checkbox" value="10" id="second5" /><i
-          class="fas fa-piggy-bank icon"
-        ></i>
-        Back Up $10</label
-      >
-      <div class="summary">
-        Total Checked: $<span id="totalSecond">0</span> | Remaining: $<span
-          id="balanceSecond"
-          >160</span
-        >
-      </div>
+  <!-- Second Half -->
+  <div class="card mb-3 shadow-sm">
+    <div class="card-header bg-info text-white"><i class="fas fa-coins"></i> Second Half ($160)</div>
+    <div class="card-body" id="secondItems">
+      <!-- Items will be injected here by JS -->
     </div>
+    <div class="mt-2 px-3">Total: $<span id="totalSecond">0</span> | Left: $<span id="balanceSecond">160</span></div>
+    <div class="progress px-3"><div class="progress-bar bg-success" role="progressbar" style="width:0%" id="progressSecond"></div></div>
+  </div>
 
-    <!-- Grand Total -->
-    <div class="section">
-      <h3><i class="fas fa-chart-line icon"></i> Grand Summary</h3>
-      <div class="summary">
-        Total Spent: $<span id="grandTotal">0</span> | Total Remaining: $<span
-          id="grandRemaining"
-          >320</span
-        >
-      </div>
+  <!-- Grand Total -->
+  <div class="card mb-3 shadow-sm">
+    <div class="card-header bg-success text-white"><i class="fas fa-chart-line"></i> Grand Total</div>
+    <div class="card-body text-center">
+      Total Spent: $<span id="grandTotal">0</span> | Total Left: $<span id="grandRemaining">320</span>
     </div>
+  </div>
 
-    <script>
-      const halves = {
-        first: {
-          salary: 160,
-          totalId: "totalFirst",
-          balanceId: "balanceFirst",
-          count: 4,
-        },
-        second: {
-          salary: 160,
-          totalId: "totalSecond",
-          balanceId: "balanceSecond",
-          count: 5,
-        },
-      };
+  <!-- Reset -->
+  <button class="btn btn-danger" id="resetBtn"><i class="fas fa-redo"></i> Reset All</button>
 
-      // Safe element getter
-      function getElem(id) {
-        return document.getElementById(id);
-      }
+</div>
 
-      // Calculate totals
-      function calculateTotal(half) {
-        const { salary, totalId, balanceId, count } = halves[half];
-        let total = 0;
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Data for each half
+const halves = {
+  first: [
+    {id:'first0', label:'Food $60', icon:'fas fa-utensils', value:60},
+    {id:'first1', label:'Gas $15', icon:'fas fa-motorcycle', value:15},
+    {id:'first2', label:'Saving $60', icon:'fas fa-house-user', value:60, tooltip:'(!AI confirm: I borrow money from my mom to get moto this need to pay on her back in monthly)'},
+    {id:'first3', label:'Other $10', icon:'fas fa-gift', value:10},
+    {id:'first4', label:'Back Up $15', icon:'fas fa-piggy-bank', value:15}
+  ],
+  second: [
+    {id:'second0', label:'Oil $15', icon:'fas fa-oil-can', value:15},
+    {id:'second1', label:'Food $60', icon:'fas fa-utensils', value:60},
+    {id:'second2', label:'House $60', icon:'fas fa-house-user', value:60},
+    {id:'second3', label:'Electric $5', icon:'fas fa-bolt', value:5},
+    {id:'second4', label:'Other $10', icon:'fas fa-gift', value:10},
+    {id:'second5', label:'Save $10', icon:'fas fa-piggy-bank', value:10}
+  ]
+};
 
-        for (let i = 0; i <= count; i++) {
-          const cb = getElem(`${half}${i}`);
-          if (!cb) continue;
-          if (cb.checked) total += Number(cb.value);
-          cb.parentElement.className = cb.checked ? "checked" : "";
-          localStorage.setItem(`${half}${i}`, cb.checked);
-        }
+// Sort items descending by value
+for(let half in halves){
+  halves[half].sort((a,b)=>b.value-a.value);
+}
 
-        getElem(totalId).innerText = total.toFixed(2);
-        getElem(balanceId).innerText = (salary - total).toFixed(2);
-        calculateGrand();
-      }
+// Render items
+for(let half in halves){
+  const container = $(`#${half}Items`);
+  halves[half].forEach(item=>{
+    const labelAttr = item.tooltip ? `data-bs-toggle="tooltip" title="${item.tooltip}"` : '';
+    container.append(`
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="${item.value}" id="${item.id}">
+        <label class="form-check-label" for="${item.id}" ${labelAttr}><i class="${item.icon}"></i> ${item.label}</label>
+      </div>
+    `);
+  });
+}
 
-      // Calculate grand total
-      function calculateGrand() {
-        const totalFirst = Number(getElem("totalFirst").innerText) || 0;
-        const totalSecond = Number(getElem("totalSecond").innerText) || 0;
-        const grandTotal = totalFirst + totalSecond;
-        const grandRemaining = 320 - grandTotal;
+// Enable tooltips
+const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl);
+});
 
-        getElem("grandTotal").innerText = grandTotal.toFixed(2);
-        getElem("grandRemaining").innerText = grandRemaining.toFixed(2);
-      }
+// Update functions
+function updateHalf(half){
+  let total=0;
+  halves[half].forEach(item=>{
+    const cb=$(`#${item.id}`);
+    if(cb.prop('checked')) total+=Number(cb.val());
+    cb.parent().toggleClass('checked',cb.prop('checked'));
+    localStorage.setItem(item.id,cb.prop('checked'));
+  });
+  $(`#total${half.charAt(0).toUpperCase()+half.slice(1)}`).text(total);
+  $(`#balance${half.charAt(0).toUpperCase()+half.slice(1)}`).text(160-total);
+  $(`#progress${half.charAt(0).toUpperCase()+half.slice(1)}`).css('width',(total/160*100)+'%');
+  updateGrand();
+}
 
-      // Load saved state
-      globalThis.addEventListener("DOMContentLoaded", () => {
-        for (const half in halves) {
-          for (let i = 0; i <= halves[half].count; i++) {
-            const cb = getElem(`${half}${i}`);
-            if (!cb) continue;
-            cb.checked = localStorage.getItem(`${half}${i}`) === "true";
-            cb.addEventListener("change", () => calculateTotal(half));
-          }
-          calculateTotal(half);
-        }
-      });
-    </script>
-  </body>
+function updateGrand(){
+  let totalFirst=Number($('#totalFirst').text());
+  let totalSecond=Number($('#totalSecond').text());
+  let grandTotal=totalFirst+totalSecond;
+  $('#grandTotal').text(grandTotal);
+  $('#grandRemaining').text(320-grandTotal);
+}
+
+function resetAll(){
+  for(let half in halves){
+    halves[half].forEach(item=>{
+      $(`#${item.id}`).prop('checked',false);
+      localStorage.setItem(item.id,false);
+    });
+    updateHalf(half);
+  }
+}
+
+// Init
+$(document).ready(function(){
+  for(let half in halves){
+    halves[half].forEach(item=>{
+      $(`#${item.id}`).prop('checked',localStorage.getItem(item.id)==='true');
+      $(`#${item.id}`).change(()=>updateHalf(half));
+    });
+    updateHalf(half);
+  }
+  $('#resetBtn').click(resetAll);
+});
+</script>
+</body>
 </html>
-
-
