@@ -2,379 +2,358 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>💵Salary Tracker</title>
+    <title>Salary Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       rel="stylesheet"
     />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
 
     <style>
-      body {
-        font-family: "Poppins", sans-serif;
-        background: linear-gradient(to bottom, #e0f7fa, #f0f4f8);
-        padding: 20px;
-        margin-top: 80px;
-        overflow-x: hidden;
+      @font-face {
+        font-family: "KhmerOS";
+        src: local("Khmer OS Siemreap");
       }
-
-      /* Sticky header */
+      body {
+        font-family: "Poppins", "KhmerOS", sans-serif;
+        background: #f4f7fb;
+        padding: 20px;
+      }
       h1 {
-        position: sticky;
-        top: 0;
-        background: #fff;
-        padding: 15px 0;
-        z-index: 999;
         text-align: center;
         color: #0d6efd;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      /* Card & container */
-      .card-header {
         font-weight: 600;
+        margin-bottom: 20px;
       }
       .card {
-        border-radius: 15px;
+        border-radius: 16px;
+        transition: 0.3s;
       }
-      .card-body {
-        padding: 1rem;
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
       }
-
-      /* Checkbox styling */
-      .form-check {
+      .fixed {
+        background: #eef2ff;
+        padding: 8px;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        font-weight: 500;
+      }
+      .expense {
         display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 8px;
-        margin-left: 14px;
-        margin-bottom: 8px;
-        border-radius: 10px;
-        transition: all 0.3s;
-        flex-wrap: wrap;
+        justify-content: space-between;
         background: #f8f9fa;
+        padding: 6px 10px;
+        border-radius: 8px;
+        margin-bottom: 4px;
+        align-items: center;
+        font-size: 14px;
       }
-      .form-check-input {
-        flex: 0 0 auto;
-        margin-top: 0;
+      .over-card {
+        border: 2px solid #dc3545;
+        background: #ffe6e6;
       }
-      .form-check-label {
-        flex: 1 1 auto;
-        margin: 0;
-        word-break: break-word;
-      }
-      .form-check:hover {
-        background: #d0ebff;
-        transform: translateX(2px);
-      }
-      .checked {
-        background: #d1e7dd !important;
+      .over {
+        color: #dc3545;
         font-weight: 600;
       }
-
-      /* Full rounded progress bars */
-      .progress-wrapper {
-        margin: 10px -1rem 0 -1rem; /* remove card padding */
-        width: calc(100% + 2rem);
-      }
       .progress {
-        height: 30px;
-        border-radius: 50px;
-        overflow: hidden;
-        width: 97%;
-        margin: auto;
-        margin-bottom: 10px;
-        
+        height: 14px;
+        border-radius: 20px;
+        margin-top: 5px;
       }
-      .progress-bar {
-        border-radius: 50px;
-        transition: width 0.8s ease;
-      }
-
-      /* Reset button */
-      #resetBtn {
-        margin: 20px auto;
-        display: block;
-      }
-
-      /* Confetti canvas */
-      #confetti-canvas {
+      .lang-btn {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 9999;
+        top: 15px;
+        right: 15px;
+        z-index: 10;
+      }
+      .btn-small {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.8rem;
       }
     </style>
   </head>
   <body>
-    <h1><i class="fas fa-wallet"></i> Monthly Tracker</h1>
+    <button class="btn btn-outline-primary lang-btn" id="langBtn">ខ្មែរ</button>
+    <h1 id="title"></h1>
 
     <div class="container">
-      <!-- First Half -->
-      <div class="card mb-3 shadow-sm">
-        <div class="card-header bg-primary text-white">
-          <i class="fas fa-coins"></i> First Half ($160)
-        </div>
-        <div class="card-body" id="firstItems"></div>
-        <div class="mt-2 px-3">
-          Total: $<span id="totalFirst">0</span> | Remaining: $<span
-            id="balanceFirst"
-            >160</span
-          >
-          <div class="progress-wrapper">
-            <div class="progress">
-              <div
-                class="progress-bar bg-danger"
-                role="progressbar"
-                style="width: 0%"
-                id="progressFirst"
-              ></div>
-            </div>
-          </div>
-        </div>
+      <div class="d-flex justify-content-between mb-3 flex-wrap">
+        <select id="monthSelect" class="form-select w-50 mb-2"></select>
+        <button class="btn btn-danger ms-2 mb-2" id="resetMonth">
+          Reset ⭮
+        </button>
       </div>
 
-      <!-- Second Half -->
-      <div class="card mb-3 shadow-sm">
-        <div class="card-header bg-info text-white">
-          <i class="fas fa-coins"></i> Second Half ($160)
-        </div>
-        <div class="card-body" id="secondItems"></div>
-        <div class="mt-2 px-3">
-          Total: $<span id="totalSecond">0</span> | Remaining: $<span
-            id="balanceSecond"
-            >160</span
-          >
-          <div class="progress-wrapper">
-            <div class="progress">
-              <div
-                class="progress-bar bg-danger"
-                role="progressbar"
-                style="width: 0%"
-                id="progressSecond"
-              ></div>
-            </div>
-          </div>
+      <div class="row" id="tracker"></div>
+
+      <div class="card mt-4 shadow-sm">
+        <div class="card-body text-center fw-bold">
+          <span id="spentLabel"></span>: $<span id="grandSpent">0</span> |
+          <span id="remainLabel"></span>: $<span id="grandRemain">0</span>
         </div>
       </div>
-
-      <!-- Grand Total -->
-      <div class="card mb-3 shadow-sm">
-        <div class="card-header bg-success text-white">
-          <i class="fas fa-chart-line"></i> Grand Total
-        </div>
-        <div class="card-body text-center">
-          Total Spent: $<span id="grandTotal">0</span> | Total Remaining: $<span
-            id="grandRemaining"
-            >320</span
-          >
-        </div>
-      </div>
-
-      <!-- Reset -->
-      <button class="btn btn-danger" id="resetBtn">
-        <i class="fas fa-redo"></i> Reset All
-      </button>
     </div>
 
-    <!-- Confetti Canvas -->
-    <canvas id="confetti-canvas"></canvas>
+    <!-- MODAL -->
+    <div class="modal fade" id="expModal">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="modalTitle"></h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input
+              id="expName"
+              class="form-control mb-2"
+              placeholder="Item name"
+            />
+            <input
+              id="expCost"
+              type="number"
+              class="form-control"
+              placeholder="Cost"
+            />
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-danger" id="deleteBtn">⛔</button>
+            <button class="btn btn-primary" id="saveBtn">💳</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-      // Data
-      const halves = {
-        first: [
-          {
-            id: "first0",
-            label: "Food $60",
-            icon: "fas fa-utensils",
-            value: 60,
+      const SALARY = 320; // Total salary
+
+      // Language
+      const i18n = {
+        en: {
+          title: "Salary Tracker",
+          first: "First Half (1–15)",
+          second: "Second Half (16–End)",
+          spent: "Spent",
+          remain: "Remaining",
+          over: "OVER",
+          add: "Add",
+          edit: "Edit Expense",
+          delete: "Delete",
+          items: {
+            Food: "Food",
+            Gas: "Gas",
+            House: "House",
+            Saving: "Saving",
+            Parking: "Parking",
+            Oil: "Oil",
+            Other: "Other",
           },
-          {
-            id: "first1",
-            label: "Gas $15",
-            icon: "fas fa-motorcycle",
-            value: 15,
+          modalName: "Item name",
+          modalCost: "Cost",
+          resetMonth: "Reset ⭮",
+        },
+        km: {
+          title: "តារាងគ្រប់គ្រងប្រាក់ខែ",
+          first: "ពាក់កណ្តាលខែទី១ (១–១៥)",
+          second: "ពាក់កណ្តាលខែទី២ (១៦–ចុងខែ)",
+          spent: "ចំណាយ",
+          remain: "នៅសល់",
+          over: "លើស",
+          add: "បន្ថែម",
+          edit: "កែចំណាយ",
+          delete: "លុប",
+          items: {
+            Food: "អាហារ",
+            Gas: "សាំង",
+            House: "ផ្ទះ",
+            Saving: "សន្សំ",
+            Parking: "ចំណតម៉ូតូ",
+            Oil: "ប្រេងម៉ូតូ",
+            Other: "ផ្សេងៗ",
           },
-          {
-            id: "first2",
-            label: "Saving $60",
-            icon: "fas fa-house-user",
-            value: 60,
-            tooltip: "Borrowed from mom to get moto",
-          },
-          { id: "first3", label: "Other $10", icon: "fas fa-gift", value: 10 },
-          {
-            id: "first4",
-            label: "Back Up $15",
-            icon: "fas fa-piggy-bank",
-            value: 15,
-          },
-        ],
-        second: [
-          {
-            id: "second0",
-            label: "Oil $15",
-            icon: "fas fa-oil-can",
-            value: 15,
-          },
-          {
-            id: "second1",
-            label: "Food $60",
-            icon: "fas fa-utensils",
-            value: 60,
-          },
-          {
-            id: "second2",
-            label: "House $60",
-            icon: "fas fa-house-user",
-            value: 60,
-          },
-          {
-            id: "second3",
-            label: "Electric $5",
-            icon: "fas fa-bolt",
-            value: 5,
-          },
-          { id: "second4", label: "Other $10", icon: "fas fa-gift", value: 10 },
-          {
-            id: "second5",
-            label: "Save $10",
-            icon: "fas fa-piggy-bank",
-            value: 10,
-          },
-        ],
+          modalName: "ឈ្មោះទំនិញ",
+          modalCost: "ចំណាយ",
+          resetMonth: "សំអាត ⭮",
+        },
       };
 
-      // Sort descending
-      for (let half in halves) halves[half].sort((a, b) => b.value - a.value);
+      let lang = localStorage.getItem("lang") || "en";
 
-      // Render items
-      for (let half in halves) {
-        const container = $(`#${half}Items`);
-        halves[half].forEach((item) => {
-          const labelAttr = item.tooltip
-            ? `data-bs-toggle="tooltip" title="${item.tooltip}"`
-            : "";
-          container.append(`
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="${item.value}" id="${item.id}">
-        <label class="form-check-label" for="${item.id}" ${labelAttr}><i class="${item.icon}"></i> ${item.label}</label>
-      </div>
-    `);
+      // Halves configuration
+      const halves = [
+        { key: "first", fixed: ["Saving"], vars: ["Food", "Gas", "Other"] },
+        { key: "second", fixed: ["House"], vars: ["Food", "Oil", "Other"] },
+      ];
+
+      // Budgets
+      const budgets = {
+        Food: 60,
+        Gas: 15,
+        House: 70,
+        Saving: 60,
+        Oil: 15,
+        Other: 25, // Will reduce 10 in second half
+      };
+
+      // Month select
+      const monthSelect = document.getElementById("monthSelect");
+      const y = new Date().getFullYear();
+      for (let m = 1; m <= 12; m++)
+        monthSelect.innerHTML += `<option>${y}-${m}</option>`;
+      monthSelect.value = `${y}-${new Date().getMonth() + 1}`;
+
+      // Storage helpers
+      const key = (h, c) => `${monthSelect.value}-${h}-${c}`;
+      const load = (k) => JSON.parse(localStorage.getItem(k) || "[]");
+      const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+      // Modal context
+      let ctx = null;
+
+      function render() {
+        const t = i18n[lang];
+        title.textContent = t.title;
+        spentLabel.textContent = t.spent;
+        remainLabel.textContent = t.remain;
+        langBtn.textContent = lang === "en" ? "ខ្មែរ" : "EN";
+        resetMonth.textContent = t.resetMonth;
+        expName.placeholder = t.modalName;
+        expCost.placeholder = t.modalCost;
+
+        tracker.innerHTML = "";
+        let grandTotal = 0;
+
+        halves.forEach((h) => {
+          let halfTotal = 0;
+
+          let html = `<div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+              <div class="card-header bg-primary text-white">${t[h.key]}</div>
+              <div class="card-body">`;
+
+          // Fixed items
+          h.fixed.forEach((f) => {
+            const paid = load(key(h.key, f)).length > 0;
+            if (paid) halfTotal += budgets[f];
+            html += `<div class="fixed">${t.items[f]} $${budgets[f]}
+              <input type="checkbox" class="float-end" ${
+                paid ? "checked" : ""
+              } onchange="toggleFixed('${h.key}','${f}',this.checked)">
+            </div>`;
+          });
+
+          // Variable items
+          h.vars.forEach((v) => {
+            let varBudget = budgets[v];
+            if (v === "Other" && h.key === "second") varBudget -= 10;
+
+            const list = load(key(h.key, v));
+            let spent = list.reduce((a, b) => a + b.cost, 0);
+            const remain = varBudget - spent;
+            const over = remain < 0;
+            halfTotal += spent;
+
+            html += `<div class="card p-2 mb-2 ${over ? "over-card" : ""}">
+              <b>${t.items[v]} ($${varBudget})</b>
+              <button class="btn btn-sm btn-primary float-end btn-small" onclick="add('${h.key}','${v}')">${t.add} ➕</button>
+              ${list.map((e, i) =>
+                `<div class="expense">${e.name} $${e.cost} 
+                  <button class="btn btn-sm btn-light btn-small" onclick="edit('${h.key}','${v}',${i})">✏️</button>
+                </div>`).join('')}
+              <div class="${over ? "over" : ""}">${t.spent}: $${spent} | ${
+                over ? `${t.over} $${Math.abs(remain)}` : `${t.remain}: $${remain}`
+              }</div>
+              <div class="progress">
+                <div class="progress-bar ${
+                  over ? "bg-danger" : spent / varBudget > 0.7 ? "bg-warning" : "bg-success"
+                }" style="width:${Math.min((spent / varBudget) * 100, 100)}%"></div>
+              </div>
+            </div>`;
+          });
+
+          // Subtotal per half
+          html += `<div class="card p-2 mt-2 text-center fw-bold" style="background:#eef2ff">
+            Subtotal: $${halfTotal} | Remaining: $${160 - halfTotal}
+          </div>`;
+
+          html += `</div></div></div>`;
+          tracker.innerHTML += html;
+
+          grandTotal += halfTotal;
         });
+
+        grandSpent.textContent = grandTotal;
+        grandRemain.textContent = SALARY - grandTotal;
       }
 
-      // Enable tooltips
-      const tooltipTriggerList = [].slice.call(
-        document.querySelectorAll('[data-bs-toggle="tooltip"]')
-      );
-      tooltipTriggerList.map((el) => new bootstrap.Tooltip(el));
-
-      // Prevent multiple triggers
-      let completedHalves = { first: false, second: false };
-
-      // Boom/pop confetti background
-      function boomConfetti() {
-        const duration = 2 * 200; // 2 seconds
-        const end = Date.now() + duration;
-
-        (function frame() {
-          confetti({
-            particleCount: 5,
-            startVelocity: 50,
-            spread: 160,
-            origin: { x: Math.random(), y: Math.random() - 0.2 },
-          });
-          if (Date.now() < end) requestAnimationFrame(frame);
-        })();
+      // Actions
+      function toggleFixed(h, c, v) {
+        save(key(h, c), v ? [{ paid: true }] : []);
+        render();
+      }
+      function add(h, c) {
+        ctx = { h, c, i: null };
+        expName.value = "";
+        expCost.value = "";
+        modalTitle.textContent = i18n[lang].edit;
+        new bootstrap.Modal(expModal).show();
+      }
+      function edit(h, c, i) {
+        const l = load(key(h, c));
+        ctx = { h, c, i };
+        expName.value = l[i].name;
+        expCost.value = l[i].cost;
+        modalTitle.textContent = i18n[lang].edit;
+        new bootstrap.Modal(expModal).show();
       }
 
-      // Update half
-      function updateHalf(half) {
-        let total = 0;
-        halves[half].forEach((item) => {
-          const cb = $(`#${item.id}`);
-          if (cb.prop("checked")) total += Number(cb.val());
-          cb.parent().toggleClass("checked", cb.prop("checked"));
-          localStorage.setItem(item.id, cb.prop("checked"));
-        });
+      saveBtn.onclick = () => {
+        const l = load(key(ctx.h, ctx.c));
+        const e = { name: expName.value, cost: +expCost.value };
+        ctx.i === null ? l.push(e) : (l[ctx.i] = e);
+        save(key(ctx.h, ctx.c), l);
+        bootstrap.Modal.getInstance(expModal).hide();
+        render();
+      };
+      deleteBtn.onclick = () => {
+        const l = load(key(ctx.h, ctx.c));
+        l.splice(ctx.i, 1);
+        save(key(ctx.h, ctx.c), l);
+        bootstrap.Modal.getInstance(expModal).hide();
+        render();
+      };
 
-        const totalEl = $(
-          `#total${half.charAt(0).toUpperCase() + half.slice(1)}`
+      langBtn.onclick = () => {
+        lang = lang === "en" ? "km" : "en";
+        localStorage.setItem("lang", lang);
+        render();
+      };
+
+      monthSelect.onchange = render;
+      resetMonth.onclick = () => {
+        halves.forEach((h) =>
+          [...h.fixed, ...h.vars].forEach((c) =>
+            localStorage.removeItem(key(h.key, c))
+          )
         );
-        const balanceEl = $(
-          `#balance${half.charAt(0).toUpperCase() + half.slice(1)}`
-        );
-        const progressEl = $(
-          `#progress${half.charAt(0).toUpperCase() + half.slice(1)}`
-        );
+        render();
+      };
 
-        totalEl.text(total);
-        balanceEl.text(160 - total);
-        progressEl.css("width", (total / 160) * 100 + "%");
-
-        if (total >= 160 && !completedHalves[half]) {
-          completedHalves[half] = true;
-          boomConfetti(); // trigger background boom/pop confetti
-        }
-
-        updateGrand();
-      }
-
-      // Grand total
-      function updateGrand() {
-        const totalFirst = Number($("#totalFirst").text());
-        const totalSecond = Number($("#totalSecond").text());
-        const grandTotal = totalFirst + totalSecond;
-        $("#grandTotal").text(grandTotal);
-        $("#grandRemaining").text(320 - grandTotal);
-      }
-
-      // Reset
-      function resetAll() {
-        for (let half in halves) {
-          halves[half].forEach((item) => {
-            $(`#${item.id}`).prop("checked", false);
-            localStorage.setItem(item.id, false);
-          });
-          completedHalves[half] = false;
-          updateHalf(half);
-        }
-      }
-
-      // Init
-      $(document).ready(function () {
-        for (let half in halves) {
-          halves[half].forEach((item) => {
-            $(`#${item.id}`).prop(
-              "checked",
-              localStorage.getItem(item.id) === "true"
-            );
-            $(`#${item.id}`).change(() => updateHalf(half));
-          });
-          updateHalf(half);
-        }
-        $("#resetBtn").click(resetAll);
-      });
+      render();
     </script>
   </body>
 </html>
-
