@@ -234,8 +234,8 @@
         spentLabel.textContent = t.spent;
         remainLabel.textContent = t.remain;
         langBtn.textContent = lang === "en" ? "ខ្មែរ" : "// Inside render function, set modal button text
-saveBtn.textContent = i18n[lang].saveBtn + " 💲";
-deleteBtn.textContent = i18n[lang].deleteBtn + " 🧹";
+saveBtn.textContent = t.saveBtn + " 💲";
+deleteBtn.textContent = t.deleteBtn + " 🧹";
 
 // Only show delete button if editing
 deleteBtn.style.display = ctx && ctx.i !== null ? "inline-block" : "none";
