@@ -91,9 +91,7 @@
     <div class="container">
       <div class="d-flex justify-content-between mb-3 flex-wrap">
         <select id="monthSelect" class="form-select w-50 mb-2"></select>
-        <button class="btn btn-danger ms-2 mb-2" id="resetMonth">
-          Reset ↺
-        </button>
+        <button class="btn btn-danger ms-2 mb-2" id="resetMonth">Reset ↺</button>
       </div>
 
       <div class="row" id="tracker"></div>
@@ -115,33 +113,22 @@
             <button class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <input
-              id="expName"
-              class="form-control mb-2"
-              placeholder="Item name"
-            />
-            <input
-              id="expCost"
-              type="number"
-              class="form-control"
-              placeholder="Cost"
-            />
+            <input id="expName" class="form-control mb-2" placeholder="Item name" />
+            <input id="expCost" type="number" class="form-control" placeholder="Cost" />
           </div>
           <div class="modal-footer">
-            <button class="btn btn-danger" id="deleteBtn"> 🧹 </button>
-              <button class="btn btn-primary" id="saveBtn">💲 </button>
+            <button class="btn btn-danger" id="deleteBtn"></button>
+            <button class="btn btn-success" id="saveBtn"></button>
           </div>
         </div>
       </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
       const SALARY = 320; // Total salary
 
-      // Language
       const i18n = {
         en: {
           title: "Salary Tracker",
@@ -153,20 +140,12 @@
           add: "Add",
           edit: "Edit Expense",
           delete: "Delete",
-          items: {
-            Food: "Food",
-            Gas: "Gas",
-            House: "House",
-            Saving: "Saving",
-            Parking: "Parking",
-            Oil: "Oil",
-            Other: "Other",
-          },
+          saveBtn: "Save",
+          deleteBtn: "Delete",
+          items: { Food: "Food", Gas: "Gas", House: "House", Saving: "Saving", Oil: "Oil", Other: "Other" },
           modalName: "Item name",
           modalCost: "Cost",
-          resetMonth: "Reset ↺",
-          deleteBtn:"Delete ",
-          saveBtn:"Save",
+          resetMonth: "Reset ↺"
         },
         km: {
           title: "តារាងគ្រប់គ្រងប្រាក់ខែ",
@@ -178,54 +157,33 @@
           add: "បន្ថែម",
           edit: "កែចំណាយ",
           delete: "លុប",
-          items: {
-            Food: "អាហារ",
-            Gas: "សាំង",
-            House: "ផ្ទះ",
-            Saving: "សន្សំ",
-            Parking: "ចំណតម៉ូតូ",
-            Oil: "ប្រេងម៉ូតូ",
-            Other: "ផ្សេងៗ",
-          },
+          saveBtn: "រក្សាទុក",
+          deleteBtn: "លុប",
+          items: { Food: "អាហារ", Gas: "សាំង", House: "ផ្ទះ", Saving: "សន្សំ", Oil: "ប្រេងម៉ូតូ", Other: "ផ្សេងៗ" },
           modalName: "ឈ្មោះទំនិញ",
           modalCost: "ចំណាយ",
-          resetMonth: "សំអាត ↺",
-          deleteBtn:"លុប",
-          saveBtn:"រក្សាទុក",
-        },
+          resetMonth: "សំអាត ↺"
+        }
       };
 
       let lang = localStorage.getItem("lang") || "en";
 
-      // Halves configuration
       const halves = [
         { key: "first", fixed: ["Saving"], vars: ["Food", "Gas", "Other"] },
-        { key: "second", fixed: ["House"], vars: ["Food", "Oil", "Other"] },
+        { key: "second", fixed: ["House"], vars: ["Food", "Oil", "Other"] }
       ];
 
-      // Budgets
-      const budgets = {
-        Food: 60,
-        Gas: 15,
-        House: 70,
-        Saving: 60,
-        Oil: 15,
-        Other: 25, // Will reduce 10 in second half
-      };
+      const budgets = { Food: 60, Gas: 15, House: 70, Saving: 60, Oil: 15, Other: 25 };
 
-      // Month select
       const monthSelect = document.getElementById("monthSelect");
       const y = new Date().getFullYear();
-      for (let m = 1; m <= 12; m++)
-        monthSelect.innerHTML += `<option>${y}-${m}</option>`;
+      for (let m = 1; m <= 12; m++) monthSelect.innerHTML += `<option>${y}-${m}</option>`;
       monthSelect.value = `${y}-${new Date().getMonth() + 1}`;
 
-      // Storage helpers
       const key = (h, c) => `${monthSelect.value}-${h}-${c}`;
       const load = (k) => JSON.parse(localStorage.getItem(k) || "[]");
       const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 
-      // Modal context
       let ctx = null;
 
       function render() {
@@ -233,39 +191,34 @@
         title.textContent = t.title;
         spentLabel.textContent = t.spent;
         remainLabel.textContent = t.remain;
-        langBtn.textContent = lang === "en" ? "ខ្មែរ" : "// Inside render function, set modal button text
-saveBtn.textContent = t.saveBtn + " 💲";
-deleteBtn.textContent = t.deleteBtn + " 🧹";
-
-// Only show delete button if editing
-deleteBtn.style.display = ctx && ctx.i !== null ? "inline-block" : "none";
+        langBtn.textContent = lang === "en" ? "ខ្មែរ" : "EN";
         resetMonth.textContent = t.resetMonth;
         expName.placeholder = t.modalName;
         expCost.placeholder = t.modalCost;
+
+        // Modal button text
+        saveBtn.textContent = t.saveBtn + " 💲";
+        deleteBtn.textContent = t.deleteBtn + " 🧹";
+        deleteBtn.style.display = ctx && ctx.i !== null ? "inline-block" : "none";
 
         tracker.innerHTML = "";
         let grandTotal = 0;
 
         halves.forEach((h) => {
           let halfTotal = 0;
-
           let html = `<div class="col-md-6 mb-3">
             <div class="card shadow-sm">
               <div class="card-header bg-primary text-white">${t[h.key]}</div>
               <div class="card-body">`;
 
-          // Fixed items
           h.fixed.forEach((f) => {
             const paid = load(key(h.key, f)).length > 0;
             if (paid) halfTotal += budgets[f];
             html += `<div class="fixed">${t.items[f]} $${budgets[f]}
-              <input type="checkbox" class="float-end" ${
-                paid ? "checked" : ""
-              } onchange="toggleFixed('${h.key}','${f}',this.checked)">
+              <input type="checkbox" class="float-end" ${paid ? "checked" : ""} onchange="toggleFixed('${h.key}','${f}',this.checked)">
             </div>`;
           });
 
-          // Variable items
           h.vars.forEach((v) => {
             let varBudget = budgets[v];
             if (v === "Other" && h.key === "second") varBudget -= 10;
@@ -294,14 +247,12 @@ deleteBtn.style.display = ctx && ctx.i !== null ? "inline-block" : "none";
             </div>`;
           });
 
-          // Subtotal per half
           html += `<div class="card p-2 mt-2 text-center fw-bold" style="background:#eef2ff">
             Subtotal: $${halfTotal} | Remaining: $${160 - halfTotal}
           </div>`;
 
           html += `</div></div></div>`;
           tracker.innerHTML += html;
-
           grandTotal += halfTotal;
         });
 
@@ -309,11 +260,11 @@ deleteBtn.style.display = ctx && ctx.i !== null ? "inline-block" : "none";
         grandRemain.textContent = SALARY - grandTotal;
       }
 
-      // Actions
       function toggleFixed(h, c, v) {
         save(key(h, c), v ? [{ paid: true }] : []);
         render();
       }
+
       function add(h, c) {
         ctx = { h, c, i: null };
         expName.value = "";
@@ -321,6 +272,7 @@ deleteBtn.style.display = ctx && ctx.i !== null ? "inline-block" : "none";
         modalTitle.textContent = i18n[lang].edit;
         new bootstrap.Modal(expModal).show();
       }
+
       function edit(h, c, i) {
         const l = load(key(h, c));
         ctx = { h, c, i };
@@ -338,9 +290,10 @@ deleteBtn.style.display = ctx && ctx.i !== null ? "inline-block" : "none";
         bootstrap.Modal.getInstance(expModal).hide();
         render();
       };
+
       deleteBtn.onclick = () => {
         const l = load(key(ctx.h, ctx.c));
-        l.splice(ctx.i, 1);
+        if (ctx.i !== null) l.splice(ctx.i, 1);
         save(key(ctx.h, ctx.c), l);
         bootstrap.Modal.getInstance(expModal).hide();
         render();
@@ -354,11 +307,7 @@ deleteBtn.style.display = ctx && ctx.i !== null ? "inline-block" : "none";
 
       monthSelect.onchange = render;
       resetMonth.onclick = () => {
-        halves.forEach((h) =>
-          [...h.fixed, ...h.vars].forEach((c) =>
-            localStorage.removeItem(key(h.key, c))
-          )
-        );
+        halves.forEach((h) => [...h.fixed, ...h.vars].forEach((c) => localStorage.removeItem(key(h.key, c))));
         render();
       };
 
