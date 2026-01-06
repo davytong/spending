@@ -233,7 +233,12 @@
         title.textContent = t.title;
         spentLabel.textContent = t.spent;
         remainLabel.textContent = t.remain;
-        langBtn.textContent = lang === "en" ? "ខ្មែរ" : "EN";
+        langBtn.textContent = lang === "en" ? "ខ្មែរ" : "// Inside render function, set modal button text
+saveBtn.textContent = i18n[lang].saveBtn + " 💲";
+deleteBtn.textContent = i18n[lang].deleteBtn + " 🧹";
+
+// Only show delete button if editing
+deleteBtn.style.display = ctx && ctx.i !== null ? "inline-block" : "none";
         resetMonth.textContent = t.resetMonth;
         expName.placeholder = t.modalName;
         expCost.placeholder = t.modalCost;
