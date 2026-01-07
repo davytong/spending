@@ -162,10 +162,12 @@ function render(){
 
       let itemsHTML="";
       list.forEach(e=>{
-        itemsHTML+=`<div class="expense">${e.date} | ${e.name} $${e.cost.toFixed(2)} 
-          <button class="btn btn-sm btn-light btn-small" onclick="edit('${h.key}','${v}',${list.indexOf(e)})">✏️</button></div>`;
-      });
-
+  itemsHTML+=`
+    <div class="expense">
+      ${e.date} | ${e.name} $${e.cost.toFixed(2)} 
+      <button type="button" class="btn btn-sm btn-light btn-small" onclick="edit('${h.key}','${v}',${list.indexOf(e)})">✏️</button>
+    </div>`;
+});
       let foodPlan="";
       if(v==="Food"){
         const today=new Date();
