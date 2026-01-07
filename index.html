@@ -2,189 +2,192 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>💸Salary Tracker</title>
+<title>💸 Salary Tracker</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 
 <style>
-body { font-family:"Poppins","KhmerOS",sans-serif; background:#f4f7fb; padding:20px; }
-h1 { text-align:center; color:#0d6efd; font-weight:600; margin-bottom:20px; }
-.card { border-radius:16px; transition:0.3s; }
-.card:hover { transform:translateY(-3px); box-shadow:0 8px 16px rgba(0,0,0,0.15); }
-.fixed { background:#eef2ff; padding:8px; border-radius:8px; margin-bottom:5px; font-weight:500; }
-.expense { display:flex; justify-content:space-between; background:#f8f9fa; padding:6px 10px; border-radius:8px; margin-bottom:4px; align-items:center; font-size:14px; }
-.over-card { border:2px solid #dc3545; background:#ffe6e6; }
-.over { color:#dc3545; font-weight:600; }
-.progress { height:14px; border-radius:20px; margin-top:5px; }
-.lang-btn { position:fixed; top:15px; right:15px; z-index:10; }
-.btn-small { padding:0.2rem 0.5rem; font-size:0.8rem; }
+body {
+  font-family:"Poppins","KhmerOS",sans-serif;
+  background:#f4f7fb;
+  padding:20px;
+}
+h1 { text-align:center; color:#0d6efd; font-weight:600; }
 
-/* Modal */
-#saveBtn { background-color:#28a745; color:white; transition:0.3s; width:100%; margin-bottom:5px; }
-#saveBtn:hover { background-color:#218838; }
-#deleteBtn { background-color:#dc3545; color:white; transition:0.3s; width:100%; }
-#deleteBtn:hover { background-color:#c82333; }
-#expName,#expCost,#expDate { margin-bottom:10px; }
+.card { border-radius:16px; }
+.expense {
+  display:flex;
+  justify-content:space-between;
+  background:#f8f9fa;
+  padding:6px 10px;
+  border-radius:8px;
+  margin-bottom:4px;
+  font-size:14px;
+}
+.progress { height:14px; border-radius:20px; }
+
+/* FOOD STATUS */
+.food-safe { border:2px solid #28a745; background:#e8f5e9; }
+.food-warning { border:2px solid #ffc107; background:#fff8e1; }
+.food-danger { border:2px solid #dc3545; background:#ffe6e6; }
+
+.reminder {
+  padding:10px;
+  border-radius:10px;
+  margin-top:10px;
+  font-weight:600;
+}
+
+.safe { background:#e8f5e9; color:#1b5e20; }
+.warn { background:#fff8e1; color:#856404; }
+.danger { background:#ffe6e6; color:#721c24; }
+
+.btn-small { font-size:0.8rem; padding:2px 6px; }
 </style>
 </head>
+
 <body>
-<button class="btn btn-outline-primary lang-btn" id="langBtn">ខ្មែរ</button>
-<h1 id="title"></h1>
+
+<h1>💸 Salary Tracker</h1>
 
 <div class="container">
-<div class="d-flex justify-content-between mb-3 flex-wrap">
-<select id="monthSelect" class="form-select w-50 mb-2"></select>
-<button class="btn btn-danger ms-2 mb-2" id="resetMonth">Reset ↺</button>
+
+<div class="row">
+<div class="col-md-6">
+
+<div class="card p-3 food" id="foodCard">
+<h5>🍜 Food ($60)</h5>
+
+<div id="foodList"></div>
+
+<div class="mt-2 fw-bold">
+Spent: $<span id="spent">0</span> |
+Remaining: $<span id="remain">0</span> |
+Must remain: $<span id="mustRemain">0</span>
 </div>
 
-<div class="row" id="tracker"></div>
-
-<div class="card mt-4 shadow-sm">
-<div class="card-body text-center fw-bold">
-<span id="spentLabel"></span>: $<span id="grandSpent">0</span> |
-<span id="remainLabel"></span>: $<span id="grandRemain">0</span>
-</div>
-</div>
+<div class="progress mt-2">
+  <div id="foodBar" class="progress-bar"></div>
 </div>
 
-<!-- MODAL -->
-<div class="modal fade" id="expModal">
-<div class="modal-dialog modal-dialog-centered">
-<div class="modal-content">
-<div class="modal-header">
-<h5 id="modalTitle"></h5>
-<button class="btn-close" data-bs-dismiss="modal"></button>
+<div id="dailyReminder" class="reminder"></div>
+
+<button class="btn btn-primary w-100 mt-2" onclick="addFood()">➕ Add Expense</button>
+
 </div>
-<div class="modal-body">
-<input id="expName" class="form-control" placeholder="Item name" />
-<input id="expCost" type="number" class="form-control" placeholder="Cost" />
-<input id="expDate" type="date" class="form-control" />
-</div>
-<div class="modal-footer d-flex flex-column flex-sm-row justify-content-between">
-<button class="btn" id="deleteBtn"></button>
-<button class="btn" id="saveBtn"></button>
-</div>
-</div>
+
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</div>
 
-<!-- ONLY JS PART CHANGED — HTML & CSS SAME -->
 <script>
-const SALARY = 320;
-const MAX_DAILY_FOOD = 4;
+/* ===== CONFIG ===== */
+const FOOD_BUDGET = 60;
+const MAX_DAILY = 4;
+const STORAGE_KEY = "food-expenses";
 
-const i18n = {
-en:{ title:"Salary Tracker", spent:"Spent", remain:"Remaining", over:"OVER",
-add:"Add", edit:"Edit Expense", saveBtn:"Save", deleteBtn:"Delete",
-items:{Food:"Food",Gas:"Gas",House:"House",Saving:"Saving",Oil:"Oil",Other:"Other"},
-resetMonth:"Reset ↺", needRemain:"Need remain", needSpend:"Need spend/day",
-subtotal:"Subtotal"
-},
-km:{ title:"តារាងគ្រប់គ្រងប្រាក់ខែ", spent:"ចំណាយ", remain:"នៅសល់", over:"លើស",
-add:"បន្ថែម", edit:"កែចំណាយ", saveBtn:"រក្សាទុក", deleteBtn:"លុប",
-items:{Food:"អាហារ",Gas:"សាំង",House:"ផ្ទះ",Saving:"សន្សំ",Oil:"ប្រេង",Other:"ផ្សេងៗ"},
-resetMonth:"សំអាត ↺", needRemain:"ត្រូវនៅសល់", needSpend:"ត្រូវចំណាយ/ថ្ងៃ",
-subtotal:"សរុបរង"
+/* ===== LOAD ===== */
+let food = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+/* ===== DATE ===== */
+const today = new Date();
+const todayDay = today.getDate();
+const endDay = todayDay <= 15 ? 15 :
+  new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
+
+const daysLeft = Math.max(endDay - todayDay + 1, 0);
+const mustRemain = daysLeft * MAX_DAILY;
+
+/* ===== CALC ===== */
+function calc() {
+  const spent = food.reduce((s,e)=>s+e.cost,0);
+  const remain = FOOD_BUDGET - spent;
+  const ratio = remain / mustRemain;
+
+  spentEl.textContent = spent.toFixed(2);
+  remainEl.textContent = remain.toFixed(2);
+  mustRemainEl.textContent = mustRemain.toFixed(2);
+
+  foodCard.classList.remove("food-safe","food-warning","food-danger");
+  foodBar.style.width = Math.min(ratio*100,100)+"%";
+
+  if (ratio >= 1) {
+    foodCard.classList.add("food-safe");
+    foodBar.style.background="#28a745";
+    reminder("✅ Safe spending today", "safe");
+  }
+  else if (ratio >= 0.7) {
+    foodCard.classList.add("food-warning");
+    foodBar.style.background="#ffc107";
+    reminder("⚠ You are close to the limit today", "warn");
+  }
+  else {
+    foodCard.classList.add("food-danger");
+    foodBar.style.background="#dc3545";
+    reminder("🚨 Warning: spending too fast today!", "danger");
+  }
+
+  renderList();
 }
-};
 
-let lang = localStorage.getItem("lang") || "km";
-
-const halves = [
-{ key:"first", fixed:["Saving"], vars:["Food","Gas","Other"]},
-{ key:"second", fixed:["House"], vars:["Food","Oil","Other"]}
-];
-
-const budgets = { Food:60, Gas:15, House:70, Saving:60, Oil:15, Other:25 };
-
-const key = (h,c)=>`${monthSelect.value}-${h}-${c}`;
-const load = k=>JSON.parse(localStorage.getItem(k)||"[]");
-const save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
-
-function daysLeft(half){
-  const today = new Date();
-  const d = today.getDate();
-  if(half==="first") return Math.max(0, 15 - d + 1);
-  const end = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
-  return Math.max(0, end - d + 1);
+/* ===== UI ===== */
+function reminder(msg, cls) {
+  dailyReminder.className = "reminder " + cls;
+  dailyReminder.textContent =
+    `📅 ${daysLeft} days left — ${msg}`;
 }
 
-function render(){
-  const t=i18n[lang];
-  title.textContent=t.title;
-  langBtn.textContent=lang==="en"?"ខ្មែរ":"EN";
-  resetMonth.textContent=t.resetMonth;
-
-  tracker.innerHTML="";
-  let grand=0;
-
-  halves.forEach(h=>{
-    let halfTotal=0;
-    let html=`<div class="col-md-6 mb-3">
-    <div class="card shadow-sm">
-    <div class="card-header bg-primary text-white">
-    ${h.key==="first"?"1st Half":"2nd Half"}
-    </div><div class="card-body">`;
-
-    h.vars.forEach(v=>{
-      const list=load(key(h.key,v)).sort((a,b)=>a.date.localeCompare(b.date));
-      const spent=list.reduce((s,e)=>s+e.cost,0);
-      const remain=(budgets[v]-spent).toFixed(2);
-      halfTotal+=spent;
-
-      let rows="";
-      list.forEach((e,i)=>{
-        rows+=`<div class="expense">
-        <span>${e.date} | ${e.name}</span>
-        <span>$${e.cost.toFixed(2)}
-        <button class="btn btn-sm btn-light btn-small" onclick="edit('${h.key}','${v}',${i})">✏️</button>
-        </span></div>`;
-      });
-
-      let foodInfo="";
-      if(v==="Food"){
-        const dLeft=daysLeft(h.key);
-        const mustRemain=(dLeft*MAX_DAILY_FOOD).toFixed(2);
-        foodInfo=`<div class="mt-2 p-2 rounded" style="background:#eef6ff;font-size:14px">
-        ${t.items.Food} ($${budgets.Food})<br>
-        ${t.spent}: $${spent.toFixed(2)} | ${t.remain}: $${remain} | ${t.needRemain}: $${mustRemain}<br>
-        📅 ${t.needSpend} ~$${MAX_DAILY_FOOD.toFixed(2)}/ថ្ងៃ សម្រាប់ ${dLeft} ថ្ងៃ
+function renderList() {
+  foodList.innerHTML="";
+  food
+    .sort((a,b)=>new Date(a.date)-new Date(b.date))
+    .forEach((e,i)=>{
+      foodList.innerHTML+=`
+        <div class="expense">
+          ${e.date} | ${e.name} $${e.cost.toFixed(2)}
+          <button class="btn btn-sm btn-light btn-small"
+            onclick="removeFood(${i})">✖</button>
         </div>`;
-      }
-
-      html+=`
-      <div class="card p-2 mb-2">
-      <b>${t.items[v]} ($${budgets[v]})</b>
-      <button class="btn btn-sm btn-primary float-end btn-small"
-      onclick="add('${h.key}','${v}')">${t.add} ➕</button>
-      ${rows}
-      <div>${t.spent}: $${spent.toFixed(2)} | ${t.remain}: $${remain}</div>
-      ${foodInfo}
-      </div>`;
     });
-
-    html+=`
-    <div class="card p-2 mt-2 text-center fw-bold" style="background:#eef2ff">
-    ${t.subtotal}: $${halfTotal.toFixed(2)}
-    </div></div></div></div>`;
-
-    tracker.innerHTML+=html;
-    grand+=halfTotal;
-  });
-
-  grandSpent.textContent=grand.toFixed(2);
-  grandRemain.textContent=(SALARY-grand).toFixed(2);
 }
 
-langBtn.onclick=()=>{ lang=lang==="en"?"km":"en"; localStorage.setItem("lang",lang); render(); }
-monthSelect.onchange=render;
-resetMonth.onclick=()=>{ localStorage.clear(); render(); }
-render();
+/* ===== ACTIONS ===== */
+function addFood() {
+  const name = prompt("Item name:");
+  const cost = +prompt("Cost:");
+  if(!name || !cost) return;
+  food.push({
+    name,
+    cost,
+    date:new Date().toISOString().slice(0,10)
+  });
+  save();
+}
+
+function removeFood(i) {
+  food.splice(i,1);
+  save();
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(food));
+  calc();
+}
+
+/* ===== INIT ===== */
+const spentEl = document.getElementById("spent");
+const remainEl = document.getElementById("remain");
+const mustRemainEl = document.getElementById("mustRemain");
+const foodCard = document.getElementById("foodCard");
+const foodBar = document.getElementById("foodBar");
+const dailyReminder = document.getElementById("dailyReminder");
+const foodList = document.getElementById("foodList");
+
+calc();
 </script>
+
 </body>
 </html>
