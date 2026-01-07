@@ -150,9 +150,9 @@ function render(){
       html+=`<div class="fixed">${t.items[f]} $${budgets[f]}<input type="checkbox" class="float-end" ${paid?"checked":""} onchange="toggleFixed('${h.key}','${f}',this.checked)"></div>`;
     });
 
-    h.vars.forEach(v => {
+h.vars.forEach(v => {
   let varBudget = budgets[v];
-  const list = load(key(h.key, v)); // original array (for saving/deleting)
+  const list = load(key(h.key, v)); // original array for saving/deleting
   let spent = list.reduce((a, b) => a + b.cost, 0);
   let remain = varBudget - spent;
   halfTotal += spent;
@@ -161,6 +161,7 @@ function render(){
   // Create a sorted copy for display only
   const displayList = [...list].sort((a, b) => new Date(a.date) - new Date(b.date));
 
+  // Generate items HTML
   let itemsHTML = "";
   displayList.forEach(e => {
     const realIndex = list.indexOf(e); // get correct index in original array
@@ -171,38 +172,29 @@ function render(){
       </div>`;
   });
 
-  // …
-
-      let itemsHTML="";
-      list.forEach(e=>{
-  itemsHTML+=`
-    <div class="expense">
-      ${e.date} | ${e.name} $${e.cost.toFixed(2)} 
-      <button type="button" class="btn btn-sm btn-light btn-small" onclick="edit('${h.key}','${v}',${list.indexOf(e)})">✏️</button>
+  // Food plan for "Food"
+  let foodPlan = "";
+  if (v === "Food") {
+    const today = new Date();
+    const dayOfMonth = today.getDate();
+    let endDay = (h.key === "first" ? 15 : new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate());
+    const daysLeft = endDay - dayOfMonth + 1;
+    const mustRemain = (daysLeft * DAILY_MAX).toFixed(2);
+    foodPlan = `<div class="mt-2 p-2 rounded" style="background:#eef6ff;font-size:14px">
+      ${i18n[lang].items[v]} ($${varBudget})<br>${i18n[lang].spent}: $${spent.toFixed(2)} | ${i18n[lang].remain}: $${remain.toFixed(2)} | ${i18n[lang].needRemain}: $${mustRemain}<br>
+      📅 ${lang==="en"?daysLeft+" day left": "នៅសល់ "+daysLeft+" ថ្ងៃ"} 
     </div>`;
-});
-      let foodPlan="";
-      if(v==="Food"){
-        const today=new Date();
-        const dayOfMonth=today.getDate();
-        let endDay=(h.key==="first"?15:new Date(today.getFullYear(),today.getMonth()+1,0).getDate());
-        const daysLeft=endDay-dayOfMonth+1;
-        const mustRemain=(daysLeft*DAILY_MAX).toFixed(2);
-        foodPlan=`<div class="mt-2 p-2 rounded" style="background:#eef6ff;font-size:14px">
-          ${t.items[v]} ($${varBudget})<br>${t.spent}: $${spent.toFixed(2)} | ${t.remain}: $${remain.toFixed(2)} | ${t.needRemain}: $${mustRemain}<br>
-          📅 ${lang==="en"?daysLeft+" day left": "នៅសល់ "+daysLeft+" ថ្ងៃ"} 
-        </div>`;
-      }
+  }
 
-      html+=`<div class="card p-2 mb-2 ${over?"over-card":""}">
-        <b>${t.items[v]} ($${varBudget})</b>
-        <button class="btn btn-sm btn-primary float-end btn-small" onclick="add('${h.key}','${v}')">${t.add} ➕</button>
-        ${itemsHTML}
-        <div class="${over?"over":""}">${t.spent}: $${spent.toFixed(2)} | ${over?`${t.over} $${Math.abs(remain).toFixed(2)}`:`${t.remain}: $${remain.toFixed(2)}`}</div>
-        ${foodPlan}
-        <div class="progress"><div class="progress-bar ${over?"bg-danger":spent/varBudget>0.7?"bg-warning":"bg-success"}" style="width:${Math.min((spent/varBudget)*100,100)}%"></div></div>
-      </div>`;
-    });
+  html += `<div class="card p-2 mb-2 ${over?"over-card":""}">
+    <b>${i18n[lang].items[v]} ($${varBudget})</b>
+    <button class="btn btn-sm btn-primary float-end btn-small" onclick="add('${h.key}','${v}')">${i18n[lang].add} ➕</button>
+    ${itemsHTML}
+    <div class="${over?"over":""}">${i18n[lang].spent}: $${spent.toFixed(2)} | ${over?`${i18n[lang].over} $${Math.abs(remain).toFixed(2)}`:`${i18n[lang].remain}: $${remain.toFixed(2)}`}</div>
+    ${foodPlan}
+    <div class="progress"><div class="progress-bar ${over?"bg-danger":spent/varBudget>0.7?"bg-warning":"bg-success"}" style="width:${Math.min((spent/varBudget)*100,100)}%"></div></div>
+  </div>`;
+});
 
     html+=`<div class="card p-2 mt-2 text-center fw-bold" style="background:#eef2ff">${t.subtotal}: $${halfTotal.toFixed(2)} | ${t.remain}: $${(SALARY/2-halfTotal).toFixed(2)}</div>`;
     html+=`</div></div></div>`;
