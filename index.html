@@ -150,15 +150,28 @@ function render(){
       html+=`<div class="fixed">${t.items[f]} $${budgets[f]}<input type="checkbox" class="float-end" ${paid?"checked":""} onchange="toggleFixed('${h.key}','${f}',this.checked)"></div>`;
     });
 
-    h.vars.forEach(v=>{
-      let varBudget=budgets[v];
-      const list=load(key(h.key,v));
-      let spent=list.reduce((a,b)=>a+b.cost,0);
-      let remain=varBudget-spent;
-      halfTotal+=spent;
-      const over=remain<0;
+    h.vars.forEach(v => {
+  let varBudget = budgets[v];
+  const list = load(key(h.key, v)); // original array (for saving/deleting)
+  let spent = list.reduce((a, b) => a + b.cost, 0);
+  let remain = varBudget - spent;
+  halfTotal += spent;
+  const over = remain < 0;
 
-      list.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  // Create a sorted copy for display only
+  const displayList = [...list].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  let itemsHTML = "";
+  displayList.forEach(e => {
+    const realIndex = list.indexOf(e); // get correct index in original array
+    itemsHTML += `
+      <div class="expense">
+        ${e.date} | ${e.name} $${e.cost.toFixed(2)}
+        <button type="button" class="btn btn-sm btn-light btn-small" onclick="edit('${h.key}','${v}',${realIndex})">✏️</button>
+      </div>`;
+  });
+
+  // …
 
       let itemsHTML="";
       list.forEach(e=>{
