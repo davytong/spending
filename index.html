@@ -80,21 +80,21 @@ h1 { text-align:center; color:#0d6efd; font-weight:600; margin-bottom:20px; }
 <script>
 const SALARY = 320;
 const DAILY_MAX = 4;
-const EXCHANGE_RATE = 4000; // 1 USD = 4100 ៛
+const EXCHANGE_RATE = 4000; // 1 USD = 4000 ៛
 const i18n = {
   en:{ 
     title:"Salary Tracker", spent:"Spent", remain:"Remaining", over:"OVER", 
-    add:"Add", edit:"Edit Expense", saveBtn:"Save", deleteBtn:"Delete", 
+    add:"Add", edit:" Expense", saveBtn:"Save", deleteBtn:"Delete", 
     subtotal:"Subtotal", items:{Food:"Food",Gas:"Gas",House:"House",Saving:"Saving",Oil:"Oil",Other:"Other"}, 
-    resetMonth:"Reset ↺", needRemain:"Need remain", needSpend:"Need spend/day",
+    resetMonth:"Reset ↺", needRemain:"Must Remain", needSpend:"Need spend/day",
     modalName:"Item name", modalCost:"Cost", modalDate:"Date", modalCurrency:"Currency"
   },
   km:{ 
     title:"តារាងគ្រប់គ្រងប្រាក់ខែ", spent:"ចំណាយ", remain:"នៅសល់", over:"លើស", 
-    add:"បន្ថែម", edit:"កែចំណាយ", saveBtn:"រក្សាទុក", deleteBtn:"លុប", 
+    add:"បន្ថែម", edit:"ការចំណាយ", saveBtn:"រក្សាទុក", deleteBtn:"លុប", 
     subtotal:"សរុប", items:{Food:"អាហារ",Gas:"សាំង",House:"ផ្ទះ",Saving:"សន្សំ",Oil:"ប្រេងម៉ូតូ",Other:"ផ្សេងៗ"}, 
     resetMonth:"សំអាត ↺", needRemain:"ត្រូវនៅសល់", needSpend:"ត្រូវចំណាយ/ថ្ងៃ",
-    modalName:"ឈ្មោះទំនិញ", modalCost:"ចំណាយ", modalDate:"កាលបរិច្ឆេទ", modalCurrency:"រូបិយប័ណ្ណ"
+    modalName:"ឈ្មោះទំនិញ", modalCost:"ទឹកប្រាក់", modalDate:"កាលបរិច្ឆេទ", modalCurrency:"រូបិយប័ណ្ណ"
   }
 };
 
@@ -117,6 +117,28 @@ const load = k=>JSON.parse(localStorage.getItem(k)||"[]");
 const save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
 let ctx=null;
 
+// ===== Salary Cycle Helper (PUT HERE – TOP LEVEL) =====
+function getSalaryHalfInfo(date = new Date()) {
+  const y = date.getFullYear();
+  const m = date.getMonth();
+  const d = date.getDate();
+
+  let half, endDate;
+
+  if (d >= 5 && d <= 20) {
+    half = "first";
+    endDate = new Date(y, m, 20);
+  } else {
+    half = "second";
+    endDate = new Date(y, m + 1, 4);
+  }
+
+  const oneDay = 24 * 60 * 60 * 1000;
+  const daysLeft =
+    Math.floor((endDate - date) / oneDay) + 1;
+
+  return { half, daysLeft };
+}
 function render(){
   const t = i18n[lang];
 
@@ -126,7 +148,6 @@ function render(){
   langBtn.textContent = lang==="en"?"ខ្មែរ":"EN";
   resetMonth.textContent = t.resetMonth;
 
-  // Modal translations
   expName.placeholder = t.modalName;
   expCost.placeholder = t.modalCost;
   expDate.placeholder = t.modalDate;
@@ -150,60 +171,63 @@ function render(){
       html+=`<div class="fixed">${t.items[f]} $${budgets[f]}<input type="checkbox" class="float-end" ${paid?"checked":""} onchange="toggleFixed('${h.key}','${f}',this.checked)"></div>`;
     });
 
-h.vars.forEach(v => {
-  let varBudget = budgets[v];
-  const list = load(key(h.key, v)); // original array for saving/deleting
-  let spent = list.reduce((a, b) => a + b.cost, 0);
-  let remain = varBudget - spent;
-  halfTotal += spent;
-  const over = remain < 0;
+    h.vars.forEach(v => {
+      let varBudget = budgets[v];
+      const list = load(key(h.key, v));
+      let spent = list.reduce((a,b)=>a+b.cost,0);
+      let remain = varBudget - spent;
+      halfTotal += spent;
+      const over = remain < 0;
 
-  // Create a sorted copy for display only
-  const displayList = [...list].sort((a, b) => new Date(a.date) - new Date(b.date));
+      const displayList = [...list].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-  // Generate items HTML
-  let itemsHTML = "";
-  displayList.forEach(e => {
-    const realIndex = list.indexOf(e); // get correct index in original array
-    itemsHTML += `
-      <div class="expense">
-        ${e.date} | ${e.name} $${e.cost.toFixed(2)}
-        <button type="button" class="btn btn-sm btn-light btn-small" onclick="edit('${h.key}','${v}',${realIndex})">✏️</button>
-      </div>`;
-  });
+      let itemsHTML = "";
+      displayList.forEach(e=>{
+        const realIndex = list.indexOf(e);
+        itemsHTML += `
+          <div class="expense">
+            ${e.date} | ${e.name} $${e.cost.toFixed(2)}
+            <button type="button" class="btn btn-sm btn-light btn-small" onclick="edit('${h.key}','${v}',${realIndex})">✏️</button>
+          </div>`;
+      });
 
-  // Food plan for "Food"
-  let foodPlan = "";
-  if (v === "Food") {
-    const today = new Date();
-    const dayOfMonth = today.getDate();
-    let endDay = (h.key === "first" ? 15 : new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate());
-    const daysLeft = endDay - dayOfMonth + 1;
-    const mustRemain = (daysLeft * DAILY_MAX).toFixed(2);
-    foodPlan = `<div class="mt-2 p-2 rounded" style="background:#eef6ff;font-size:14px">
-      ${i18n[lang].items[v]} ($${varBudget})<br>${i18n[lang].spent}: $${spent.toFixed(2)} | ${i18n[lang].remain}: $${remain.toFixed(2)} | ${i18n[lang].needRemain}: $${mustRemain}<br>
-      📅 ${lang==="en"?daysLeft+" day left": "នៅសល់ "+daysLeft+" ថ្ងៃ"} 
+      let foodPlan = "";
+      if(v==="Food"){
+       const today = new Date();
+const cycle = getSalaryHalfInfo(today);
+
+if (cycle.half === h.key) {
+  const daysLeft = cycle.daysLeft;
+  const mustRemain = (daysLeft * DAILY_MAX).toFixed(2);
+
+  foodPlan = `
+    <div class="mt-2 p-2 rounded" style="background:#eef6ff;font-size:14px">
+      ${t.items[v]} ($${varBudget})<br>
+      ${t.spent}: $${spent.toFixed(2)} |
+      ${t.remain}: $${remain.toFixed(2)} |
+      ${t.needRemain}: $${mustRemain}<br>
+      📅 Today included • ${daysLeft} days left
     </div>`;
-  }
+}
 
-  html += `<div class="card p-2 mb-2 ${over?"over-card":""}">
-    <b>${i18n[lang].items[v]} ($${varBudget})</b>
-    <button class="btn btn-sm btn-primary float-end btn-small" onclick="add('${h.key}','${v}')">${i18n[lang].add} ➕</button>
-    ${itemsHTML}
-    <div class="${over?"over":""}">${i18n[lang].spent}: $${spent.toFixed(2)} | ${over?`${i18n[lang].over} $${Math.abs(remain).toFixed(2)}`:`${i18n[lang].remain}: $${remain.toFixed(2)}`}</div>
-    ${foodPlan}
-    <div class="progress"><div class="progress-bar ${over?"bg-danger":spent/varBudget>0.7?"bg-warning":"bg-success"}" style="width:${Math.min((spent/varBudget)*100,100)}%"></div></div>
-  </div>`;
-});
+      html += `<div class="card p-2 mb-2 ${over?"over-card":""}">
+        <b>${t.items[v]} ($${varBudget})</b>
+        <button class="btn btn-sm btn-primary float-end btn-small" onclick="add('${h.key}','${v}')">${t.add} ➕</button>
+        ${itemsHTML}
+        <div class="${over?"over":""}">${t.spent}: $${spent.toFixed(2)} | ${over?`${t.over} $${Math.abs(remain).toFixed(2)}`:`${t.remain}: $${remain.toFixed(2)}`}</div>
+        ${foodPlan}
+        <div class="progress"><div class="progress-bar ${over?"bg-danger":spent/varBudget>0.7?"bg-warning":"bg-success"}" style="width:${Math.min((spent/varBudget)*100,100)}%"></div></div>
+      </div>`;
+    });
 
     html+=`<div class="card p-2 mt-2 text-center fw-bold" style="background:#eef2ff">${t.subtotal}: $${halfTotal.toFixed(2)} | ${t.remain}: $${(SALARY/2-halfTotal).toFixed(2)}</div>`;
     html+=`</div></div></div>`;
-    tracker.innerHTML+=html;
-    grandTotal+=halfTotal;
+    tracker.innerHTML += html;
+    grandTotal += halfTotal;
   });
 
-  grandSpent.textContent=grandTotal.toFixed(2);
-  grandRemain.textContent=(SALARY-grandTotal).toFixed(2);
+  grandSpent.textContent = grandTotal.toFixed(2);
+  grandRemain.textContent = (SALARY-grandTotal).toFixed(2);
 }
 
 // Functions
@@ -214,9 +238,9 @@ function edit(h,c,i){ const l=load(key(h,c)); ctx={h,c,i}; expName.value=l[i].na
 saveBtn.onclick=()=>{
   if(!ctx) return;
   let cost = +expCost.value;
-  if(expCurrency.value==="KHR") cost = Math.round(cost/EXCHANGE_RATE*100)/100; // convert to USD and round 2 decimals
-  const l=load(key(ctx.h,ctx.c));
-  const e={name:expName.value, cost:cost, date:expDate.value};
+  if(expCurrency.value==="KHR") cost = Math.round(cost/EXCHANGE_RATE*100)/100;
+  const l = load(key(ctx.h,ctx.c));
+  const e = {name: expName.value, cost: cost, date: expDate.value};
   ctx.i===null?l.push(e):(l[ctx.i]=e);
   save(key(ctx.h,ctx.c),l);
   bootstrap.Modal.getInstance(expModal).hide();
