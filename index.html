@@ -209,12 +209,14 @@ function render(){
         if(cycle.half === h.key){
           const daysLeft = cycle.daysLeft;
           const mustRemain = (daysLeft*DAILY_MAX).toFixed(2);
-          foodPlan = `<div class="mt-2 p-2 rounded" style="background:#eef6ff;font-size:14px">
-            ${t.items[v]} ($${varBudget})<br>
-            ${t.spent}: $${spent.toFixed(2)} |
-            ${t.remain}: $${remain.toFixed(2)} |
-            ${t.needRemain}: $${mustRemain}<br>
-            📅 Today included • ${daysLeft} days left
+    
+                foodPlan = `<div class="mt-2 p-2 rounded" style="background:#eef6ff;font-size:14px">
+  ${t.items[v]} ($${varBudget})<br>
+  ${t.spent}: $${spent.toFixed(2)} |
+  ${t.remain}: $${remain.toFixed(2)} |
+  ${t.needRemain}: $${mustRemain}<br>
+  📅 ${lang==="en"?daysLeft+" days left": "នៅសល់ "+daysLeft+" ថ្ងៃទៀត"}
+</div>`;
           </div>`;
         }
       }
@@ -229,7 +231,7 @@ function render(){
       </div>`;
     });
 
-    html += `<div class="card subtotal-card">${t.subtotal}: $${halfTotal.toFixed(2)} | ${t.remain}: $${(SALARY/2-halfTotal).toFixed(2)}</div>`;
+ html += `<div class="card subtotal-card">${t.subtotal}: $${halfTotal.toFixed(2)} | ${t.remain}: $${(SALARY/2-halfTotal).toFixed(2)}</div>`;
     html+=`</div></div></div>`;
     tracker.innerHTML += html;
     grandTotal += halfTotal;
