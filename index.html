@@ -21,17 +21,16 @@ h1 { text-align:center; color:#0d6efd; font-weight:600; margin-bottom:20px; }
 .lang-btn { position:fixed; top:15px; right:15px; z-index:10; }
 .btn-small { padding:0.2rem 0.5rem; font-size:0.8rem; }
 .subtotal-card {
-    background: #fff3cd;       /* light yellow background */
-    border: 2px solid #ffc107; /* golden border */
-    color: #856404;            /* dark text */
-    font-size: 16px;           /* slightly bigger font */
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    color: #856404;
+    font-size: 16px;
     text-align: center;
-    font-weight: 700;          /* bold */
+    font-weight: 700;
     padding: 10px;
     border-radius: 12px;
     margin-top: 10px;
 }
-
 #saveBtn { background-color:#28a745; color:white; width:100%; margin-bottom:5px; }
 #saveBtn:hover { background-color:#218838; }
 #deleteBtn { background-color:#dc3545; color:white; width:100%; }
@@ -91,7 +90,7 @@ h1 { text-align:center; color:#0d6efd; font-weight:600; margin-bottom:20px; }
 <script>
 const SALARY = 320;
 const DAILY_MAX = 4;
-const EXCHANGE_RATE = 4000; // 1 USD = 4000 ៛
+const EXCHANGE_RATE = 4000;
 
 const i18n = {
   en:{ 
@@ -129,51 +128,45 @@ const load = k=>JSON.parse(localStorage.getItem(k)||"[]");
 const save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
 let ctx=null;
 
-// ===== Salary Half Helper =====
 function getSalaryHalfInfo(date = new Date()) {
   const y = date.getFullYear();
   const m = date.getMonth();
   const d = date.getDate();
 
   let half, endDate;
-
-  if (d >= 5 && d <= 20) {
-    half = "first";
-    endDate = new Date(y, m, 20);
+  if(d>=5 && d<=20){
+    half="first"; endDate = new Date(y,m,20);
   } else {
-    half = "second";
-    if (d > 20) endDate = new Date(y, m+1, 4); // next month 4th
-    else endDate = new Date(y, m, 4); // early month
+    half="second";
+    endDate = (d>20)? new Date(y,m+1,4) : new Date(y,m,4);
   }
 
   const oneDay = 24*60*60*1000;
   const daysLeft = Math.floor((endDate - date)/oneDay)+1;
-
   return { half, daysLeft };
 }
 
 function render(){
-  const t = i18n[lang];
+  const t=i18n[lang];
+  title.textContent=t.title;
+  spentLabel.textContent=t.spent;
+  remainLabel.textContent=t.remain;
+  langBtn.textContent=lang==="en"?"ខ្មែរ":"EN";
+  resetMonth.textContent=t.resetMonth;
 
-  title.textContent = t.title;
-  spentLabel.textContent = t.spent;
-  remainLabel.textContent = t.remain;
-  langBtn.textContent = lang==="en"?"ខ្មែរ":"EN";
-  resetMonth.textContent = t.resetMonth;
-
-  expName.placeholder = t.modalName;
-  expCost.placeholder = t.modalCost;
-  expDate.placeholder = t.modalDate;
-  saveBtn.textContent = t.saveBtn + " 💲";
-  deleteBtn.textContent = t.deleteBtn + " 🧹";
-  deleteBtn.style.display = ctx && ctx.i!==null ? "inline-block" : "none";
+  expName.placeholder=t.modalName;
+  expCost.placeholder=t.modalCost;
+  expDate.placeholder=t.modalDate;
+  saveBtn.textContent=t.saveBtn+" 💲";
+  deleteBtn.textContent=t.deleteBtn+" 🧹";
+  deleteBtn.style.display=ctx && ctx.i!==null ? "inline-block":"none";
 
   tracker.innerHTML="";
   let grandTotal=0;
 
   halves.forEach(h=>{
     let halfTotal=0;
-    let halfTitle = h.key==="first" ? (lang==="en"?"1st Half (5–20)":"ពាក់កណ្តាលខែទី១ (5–20)") : (lang==="en"?"2nd Half (21–4)":"ពាក់កណ្តាលខែទី២ (21–ចុងខែ)");
+    let halfTitle=h.key==="first" ? (lang==="en"?"1st Half (5–20)":"ពាក់កណ្តាលខែទី១ (5–20)") : (lang==="en"?"2nd Half (21–4)":"ពាក់កណ្តាលខែទី២ (21–ចុងខែ)");
     let html=`<div class="col-md-6 mb-3"><div class="card shadow-sm">
       <div class="card-header bg-primary text-white">${halfTitle}</div>
       <div class="card-body">`;
@@ -184,44 +177,41 @@ function render(){
       html+=`<div class="fixed">${t.items[f]} $${budgets[f]}<input type="checkbox" class="float-end" ${paid?"checked":""} onchange="toggleFixed('${h.key}','${f}',this.checked)"></div>`;
     });
 
-    h.vars.forEach(v => {
-      let varBudget = budgets[v];
-      const list = load(key(h.key, v));
-      let spent = list.reduce((a,b)=>a+b.cost,0);
-      let remain = varBudget - spent;
-      halfTotal += spent;
-      const over = remain < 0;
+    h.vars.forEach(v=>{
+      const varBudget=budgets[v];
+      const list=load(key(h.key,v));
+      let spent=list.reduce((a,b)=>a+b.cost,0);
+      let remain=varBudget-spent;
+      halfTotal+=spent;
+      const over = remain<0;
 
-      const displayList = [...list].sort((a,b)=>new Date(a.date)-new Date(b.date));
-      let itemsHTML = "";
-      displayList.forEach(e=>{
-        const realIndex = list.indexOf(e);
-        itemsHTML += `<div class="expense">
+      let itemsHTML="";
+      [...list].sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(e=>{
+        const realIndex=list.indexOf(e);
+        itemsHTML+=`<div class="expense">
           ${e.date} | ${e.name} $${e.cost.toFixed(2)}
           <button type="button" class="btn btn-sm btn-light btn-small" onclick="edit('${h.key}','${v}',${realIndex})">✏️</button>
         </div>`;
       });
 
-      let foodPlan = "";
+      let foodPlan="";
       if(v==="Food"){
-        const today = new Date();
-        const cycle = getSalaryHalfInfo(today);
-        if(cycle.half === h.key){
-          const daysLeft = cycle.daysLeft;
-          const mustRemain = (daysLeft*DAILY_MAX).toFixed(2);
-    
-                foodPlan = `<div class="mt-2 p-2 rounded" style="background:#eef6ff;font-size:14px">
-  ${t.items[v]} ($${varBudget})<br>
-  ${t.spent}: $${spent.toFixed(2)} |
-  ${t.remain}: $${remain.toFixed(2)} |
-  ${t.needRemain}: $${mustRemain}<br>
-  📅 ${lang==="en"?daysLeft+" days left": "នៅសល់ "+daysLeft+" ថ្ងៃទៀត"}
-</div>`;
+        const today=new Date();
+        const cycle=getSalaryHalfInfo(today);
+        if(cycle.half===h.key){
+          const daysLeft=cycle.daysLeft;
+          const mustRemain=(daysLeft*DAILY_MAX).toFixed(2);
+          foodPlan=`<div class="mt-2 p-2 rounded" style="background:#eef6ff;font-size:14px">
+            ${t.items[v]} ($${varBudget})<br>
+            ${t.spent}: $${spent.toFixed(2)} |
+            ${t.remain}: $${remain.toFixed(2)} |
+            ${t.needRemain}: $${mustRemain}<br>
+            📅 ${lang==="en"?daysLeft+" days left": "នៅសល់ "+daysLeft+" ថ្ងៃទៀត"}
           </div>`;
         }
       }
 
-      html += `<div class="card p-2 mb-2 ${over?"over-card":""}">
+      html+=`<div class="card p-2 mb-2 ${over?"over-card":""}">
         <b>${t.items[v]} ($${varBudget})</b>
         <button class="btn btn-sm btn-primary float-end btn-small" onclick="add('${h.key}','${v}')">${t.add} ➕</button>
         ${itemsHTML}
@@ -231,14 +221,14 @@ function render(){
       </div>`;
     });
 
- html += `<div class="card subtotal-card">${t.subtotal}: $${halfTotal.toFixed(2)} | ${t.remain}: $${(SALARY/2-halfTotal).toFixed(2)}</div>`;
+    html+=`<div class="card subtotal-card">${t.subtotal}: $${halfTotal.toFixed(2)} | ${t.remain}: $${(SALARY/2-halfTotal).toFixed(2)}</div>`;
     html+=`</div></div></div>`;
-    tracker.innerHTML += html;
-    grandTotal += halfTotal;
+    tracker.innerHTML+=html;
+    grandTotal+=halfTotal;
   });
 
-  grandSpent.textContent = grandTotal.toFixed(2);
-  grandRemain.textContent = (SALARY-grandTotal).toFixed(2);
+  grandSpent.textContent=grandTotal.toFixed(2);
+  grandRemain.textContent=(SALARY-grandTotal).toFixed(2);
 }
 
 // Functions
@@ -248,10 +238,10 @@ function edit(h,c,i){ const l=load(key(h,c)); ctx={h,c,i}; expName.value=l[i].na
 
 saveBtn.onclick=()=>{
   if(!ctx) return;
-  let cost = +expCost.value;
-  if(expCurrency.value==="KHR") cost = Math.round(cost/EXCHANGE_RATE*100)/100;
-  const l = load(key(ctx.h,ctx.c));
-  const e = {name: expName.value, cost: cost, date: expDate.value};
+  let cost=+expCost.value;
+  if(expCurrency.value==="KHR") cost=Math.round(cost/EXCHANGE_RATE*100)/100;
+  const l=load(key(ctx.h,ctx.c));
+  const e={name:expName.value, cost:cost, date:expDate.value};
   ctx.i===null?l.push(e):(l[ctx.i]=e);
   save(key(ctx.h,ctx.c),l);
   bootstrap.Modal.getInstance(expModal).hide();
