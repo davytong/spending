@@ -20,6 +20,17 @@ h1 { text-align:center; color:#0d6efd; font-weight:600; margin-bottom:20px; }
 .progress { height:14px; border-radius:20px; margin-top:5px; }
 .lang-btn { position:fixed; top:15px; right:15px; z-index:10; }
 .btn-small { padding:0.2rem 0.5rem; font-size:0.8rem; }
+.subtotal-card {
+    background: #fff3cd;       /* light yellow background */
+    border: 2px solid #ffc107; /* golden border */
+    color: #856404;            /* dark text */
+    font-size: 16px;           /* slightly bigger font */
+    text-align: center;
+    font-weight: 700;          /* bold */
+    padding: 10px;
+    border-radius: 12px;
+    margin-top: 10px;
+}
 
 #saveBtn { background-color:#28a745; color:white; width:100%; margin-bottom:5px; }
 #saveBtn:hover { background-color:#218838; }
@@ -218,7 +229,7 @@ function render(){
       </div>`;
     });
 
-    html+=`<div class="card p-2 mt-2 text-center fw-bold" style="background:#eef2ff">${t.subtotal}: $${halfTotal.toFixed(2)} | ${t.remain}: $${(SALARY/2-halfTotal).toFixed(2)}</div>`;
+    html += `<div class="card subtotal-card">${t.subtotal}: $${halfTotal.toFixed(2)} | ${t.remain}: $${(SALARY/2-halfTotal).toFixed(2)}</div>`;
     html+=`</div></div></div>`;
     tracker.innerHTML += html;
     grandTotal += halfTotal;
